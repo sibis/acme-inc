@@ -47,11 +47,13 @@ INSTALLED_APPS = [
 
     # Custom apps
     'authentication_app',
+    'acme_app',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -79,6 +81,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'acme_project.wsgi.application'
 
+REST_FRAMEWORK = {
+    # uncomment for production to diaallow browsable APIs
+    # 'DEFAULT_RENDERER_CLASSES': (
+    #     'rest_framework.renderers.JSONRenderer',
+    # ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated', 
+    )
+}
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
@@ -128,3 +142,30 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Celery Configuration
+
+BROKER_URL = "amqp://guest@localhost//"
+
+CELERY_RESULT_BACKEND = 'amqp'
+
+CELERY_AMQP_TASK_RESULT_EXPIRES = 6000 
+
+
+CELERY_TASK_RESULT_EXPIRES = None
+
+CELERY_TIMEZONE = TIME_ZONE
+
+STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, "static") 
+
+ATTACHMENTS_DIR_NAME = 'attachments'
+
+ATTACHMENT_MAX_FILE_UPLOAD_SIZE = 200 * 1024 * 1024 #200 MB
+
+ATTACHMENT_SUPPORTED_FILE_FORMATS = {
+    'application/vnd.ms-excel' : {'allow':True},
+    'text/x-csv' : {'allow':True},
+    'text/plain' : {'allow': True}
+}
