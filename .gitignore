@@ -1,0 +1,11 @@
+celery*
+*.project
+*.pyc
+*.log
+*.sqlite3
+*.py~
+*.css~
+*.js~
+*.html~
+.DS_Store
+.settings
