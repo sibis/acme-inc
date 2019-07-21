@@ -27,6 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = 'authentication_app.User'
+
+AUTHENTICATION_BACKENDS = ['authentication_app.backends.EmailAuthBackend', ]
 
 # Application definition
 
@@ -37,6 +40,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Apps from django rest framework
+    'rest_framework',
+    'rest_framework.authtoken',
+
+    # Custom apps
+    'authentication_app',
 ]
 
 MIDDLEWARE = [
