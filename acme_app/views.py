@@ -10,7 +10,7 @@ from acme_app.serializers import AttachmentSerializer, FetchFileSerializer
 from acme_project.helper import form_error_to_list, get_file_mime_type
 from acme_app.tasks import process_file_to_db
 from django.contrib.auth import get_user_model
-from acme_app.models import ProductFile
+from acme_app.models import ProductFile, ProductInfo
 from authentication_app.models import User
 from shutil import copyfileobj
 from tempfile import mkdtemp
@@ -46,7 +46,52 @@ def get_uploaded_file_status(request):
     The uploaded files lists with created user info and date time
     """
 	try:
-		file_obj = FetchFileSerializer(File.objects.filter(created_by=request.user).order_by('-created_on'), many=True)
+		file_obj = FetchFileSerializer(ProductFile.objects.filter(created_by=request.user).order_by('-created_on'), many=True)
 		return Response({'msg':'Files retrived successfully!', 'data':file_obj.data},status = status.HTTP_200_OK)
 	except Exception as e:
 		return Response({'msg':str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET']) 
+@permission_classes((permissions.IsAuthenticated,))
+def list_products(request):
+	"""
+    The products lists with info and date time
+    """
+	try:
+		products = FetchProductsSerializer(ProductInfo.objects.all().order_by('-created_on'), many=True)
+		return Response({'msg':'Products information retrived successfully!', 'data':products.data},status = status.HTTP_200_OK)
+	except Exception as e:
+		return Response({'msg':str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST']) 
+@permission_classes((permissions.IsAuthenticated,))
+def create_product(request):
+	"""
+	API to create product
+	params: name, sku and description are mandatory params to create
+	"""
+	try:
+		product_data = CreateProductSerializer(request.data)
+		if product_data.is_valid():
+			product_data.save()
+			return Response({'msg':'Product information operation performed successfully!', 'data':products.data},status = status.HTTP_200_OK)
+		else:
+			return Response({'msg':'Error while performing operation!', 'data':serializers.errors},status = status.HTTP_400_BAD_REQUEST)
+	except Exception as e:
+		return Response({'msg':str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST']) 
+@permission_classes((permissions.IsAuthenticated,))
+def delete_products_info(request):
+	"""
+	API to delete products
+	NOTE: careful while calling this fucntion, this will flush all the info of the products
+	"""
+	try:
+		ProductFile.objects.all().delete()
+		return Response({'msg':'Products deleted successfully!'}, status = status.HTTP_200_OK)
+	except Exception as e:
+		return Response({'msg':'The following error occurred while deleting products '+str(e)}, status=status.HTTP_400_BAD_REQUEST)

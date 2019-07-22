@@ -28,8 +28,18 @@ class ProductFile(models.Model):
 
 
 class ProductInfo(models.Model):
+
+	ACTIVE = 1
+	INACTIVE = 2
+
+	__product_status = (
+		(ACTIVE,'Active'),
+		(INACTIVE, 'Inactive')
+	)
+
 	name = models.CharField(max_length = 250)
 	sku = models.CharField(max_length = 250, unique = True, db_index = True)
 	description = models.TextField(null = True)
+	status = models.SmallIntegerField(choices = __product_status, default = ACTIVE)
 	created_date = models.DateTimeField(auto_now_add = True)
 	modified_date = models.DateTimeField(auto_now = True)
