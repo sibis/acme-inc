@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from acme_app.serializers import AttachmentSerializer, FetchFileSerializer
 from acme_project.helper import form_error_to_list, get_file_mime_type
+from acme_app.tasks import process_file_to_db
 from django.contrib.auth import get_user_model
 from acme_app.models import ProductFile
 from authentication_app.models import User
@@ -30,8 +31,8 @@ def upload_file(request):
 	if file_form.is_valid():
 		files = request.FILES
 		for file in files.values():
-	 		file_obj = File.objects.create(file=file,created_by=request.user,file_type = file_form.validated_data['file_type'])
-	 		#file_streaming.delay(file_obj.id)
+	 		file_obj = ProductFile.objects.create(file=file,created_by=request.user)
+	 		process_file_to_db.delay(file_obj.id)
 	 		return Response(file_form.data, status=status.HTTP_201_CREATED)
 	else:	 	
 		return Response(file_form._errors, status=status.HTTP_400_BAD_REQUEST)
