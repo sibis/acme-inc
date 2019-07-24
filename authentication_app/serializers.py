@@ -11,10 +11,10 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('name', 'email', 'phone', 'password')
+        fields = ('name', 'email', 'password')
 
     def create(self, validated_data):
-        user = UserModel.objects.create(email = validated_data['email'],phone = validated_data['phone'], name=validated_data['name'], user_type=validated_data['user_type'])
+        user = UserModel.objects.create(email = validated_data['email'], name=validated_data['name'])
         user.set_password(validated_data['password'])
         user.save()
         return user

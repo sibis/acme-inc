@@ -22,6 +22,7 @@ from rest_framework.status import (
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def signup(request):
+	print("sibi")
 	serialized = UserSerializer(data=request.data)
 	if serialized.is_valid():
 		serialized.save()

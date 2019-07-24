@@ -4,8 +4,7 @@ import json
 
 class StreamFileProcess(AsyncWebsocketConsumer):
     async def connect(self):
-        self.room_name = self.scope['url_route']['kwargs']['room_name']
-        self.room_group_name = str(self.room_name) # file_stream
+        self.room_group_name = 'file_stream' # file_stream
         await self.channel_layer.group_add(
                 self.room_group_name,
                 self.channel_name

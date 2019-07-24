@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from authentication_app.models import User
-from acme_app.models import ProductFile, ProductInfo
+from acme_app.models import ProductFile, ProductInfo, ProductWebHook
 from django.contrib.auth import get_user_model
 from tempfile import mkdtemp
 from acme_project.helper import form_error_to_list, get_file_mime_type
@@ -13,6 +13,7 @@ class UsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id','name','email')
+
 
 class AttachmentSerializer(serializers.ModelSerializer):
     file = serializers.FileField(required=True, allow_null=False)
@@ -46,8 +47,9 @@ class  FetchFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductFile
-        fields = ('file','created_by','status')
+        fields = ('id','file','created_by','status','created_date')
         related_object = 'created_by'
+
 
 class FetchProductsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -56,7 +58,6 @@ class FetchProductsSerializer(serializers.ModelSerializer):
 
 
 class CreateProductSerializer(serializers.ModelSerializer):
-
     name = serializers.CharField(required=True, allow_null=False,max_length = 250)
     sku = serializers.CharField(required=True, allow_null=False, max_length = 250)
     description = serializers.CharField(required=False, allow_null=True)
@@ -68,10 +69,42 @@ class CreateProductSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         product, created = ProductInfo.objects.update_or_create(
-                            name = validate_data['name'],
-                            sku = validate_data['sku'], 
-                            description = validate_data['description'],
-                            status = validate_data['status']
-                        )
+                            sku = validated_data['sku'],
+                            defaults={
+                                'name': validated_data['name'], 
+                                'description': validated_data['description'],
+                                'status': validated_data['status']
+                            })
         return product
+
+
+class CreateWebHookSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(max_length=50)
+    url = serializers.URLField(max_length=300)
+    active = serializers.BooleanField(default=True)
+
+    class Meta:
+        model = ProductWebHook
+        fields = ('name', 'url', 'active')
+
+    def create(self, validated_data):
+        user = User.objects.get(id = self.context.get('user_id'))
+        webhook, created = ProductWebHook.objects.update_or_create(
+                            name = validated_data['name'],
+                            url = validated_data['url'], 
+                            active = validated_data['active'],
+                            created_by = user
+                        )
+        return webhook
+
+
+class FetchWebHooksSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(max_length=50)
+    url = serializers.URLField(max_length=300)
+    active = serializers.BooleanField(default=True)
+    created_by = UsersSerializer(required=True, allow_null=False)
+    class Meta:
+        model = ProductWebHook
+        fields = ('name', 'created_by', 'url', 'active','created_date')
+
 

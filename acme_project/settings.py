@@ -25,7 +25,9 @@ SECRET_KEY = '=9n8m=xxg&bf=(u(7r*4&s3gz0-!bi&+zu3(q((qsd+%(r=_yb'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 AUTH_USER_MODEL = 'authentication_app.User'
 
@@ -42,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'djcelery',
+    'channels',
 
     # Apps from django rest framework
     'rest_framework',
@@ -104,7 +107,8 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated', 
-    )
+    ),
+    'PAGE_SIZE': 10
 }
 
 # Database
@@ -176,6 +180,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 ATTACHMENTS_DIR_NAME = 'attachments'
 
 ATTACHMENT_MAX_FILE_UPLOAD_SIZE = 200 * 1024 * 1024 #200 MB
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 200 * 1024 * 1024
 
 ATTACHMENT_SUPPORTED_FILE_FORMATS = {
     'application/vnd.ms-excel' : {'allow':True},

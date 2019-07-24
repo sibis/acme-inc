@@ -21,7 +21,7 @@ class ProductFile(models.Model):
 	file = models.FileField(upload_to = file_attachment_path)
 	status = models.SmallIntegerField(choices = __file_sync_status, default = PENDING)
 	created_by = models.ForeignKey(User,on_delete = models.CASCADE,related_name = 'created_by')
-	created_on = models.DateTimeField(auto_now = True)
+	created_date = models.DateTimeField(auto_now = True)
 
 	def filename(self):
 		return os.path.basename(self.file.name)
@@ -37,9 +37,28 @@ class ProductInfo(models.Model):
 		(INACTIVE, 'Inactive')
 	)
 
-	name = models.CharField(max_length = 250)
-	sku = models.CharField(max_length = 250, unique = True, db_index = True)
+	name = models.CharField(max_length = 240)
+	sku = models.CharField(max_length = 240, unique = True, db_index = True)
 	description = models.TextField(null = True)
 	status = models.SmallIntegerField(choices = __product_status, default = ACTIVE)
 	created_date = models.DateTimeField(auto_now_add = True)
+	modified_date = models.DateTimeField(auto_now = True)
+
+
+class ProductWebHook(models.Model):
+
+	MANUAL_TRIGGER = 1
+	UPLOAD_TRIGGER = 2
+
+	__webhook_event_status = (
+		(MANUAL_TRIGGER,'Manual Trigger'),
+		(MANUAL_TRIGGER,'Upload Trigger')
+	)
+
+	name = models.CharField(max_length=50)
+	url = models.URLField(max_length=300)
+	event = models.SmallIntegerField(choices = __webhook_event_status, default = MANUAL_TRIGGER)
+	active = models.BooleanField(default=True)
+	created_by = models.ForeignKey(User,on_delete = models.CASCADE,related_name = 'creator')
+	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(auto_now = True)
