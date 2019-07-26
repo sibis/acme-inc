@@ -1,7 +1,6 @@
-from django.contrib import admin
-from django.urls import path
-from django.conf.urls import url, include
-from acme_app.views import upload_file, get_uploaded_file_status, list_products, create_product, delete_products_info, create_webhook, list_webhooks, get_product_info
+from django.conf.urls import url
+from acme_app.views import upload_file, get_uploaded_file_status, list_products, create_product, delete_products_info,\
+                        create_webhook, list_webhooks, get_product_info
 
 urlpatterns = [
     url(r'^upload_file/$', upload_file, name='upload_file'),
